@@ -1,5 +1,26 @@
 # classypay-schedule
 Classypay tools to translate, generate, and validate recurring dates and frequencies.
+
+## Rules
+### Valid Days
+A day is valid if and only if it falls between days 1-28 of the month or is the last day of the month.
+### Storage
+The frequency is stored as one of: MONTHLY, QUARTERLY, ANNUALLY.  The recurring day information is stored as a number between 1-365.
+### Leap Year
+For non leap years, there is no work to be done since all dates can be converted to/from day of year.  However for leap year, the following rule applies.  If a date provided by a client is greater (>) then day 59 of the year (Feb 28), a day is subtracted from the number to store the day of year as if the year is a non leap year.  This keeps the database consistent.
+
+Conversion back from day of year during leap year works on the reverse principle, i.e. if the current year is a leap year AND the day of year is > 59 (Feb 28) then add one day to the day of year to convert back to leap year.  This ensures that dates are consistent.
+## Use Case
+### Classy
+When a client calls classy with a frequency and a date, the <a href="#validateRecurringDate">validateRecurringDate(recurringDate)</a> should be called to validate the date provided is both a valid date format a valid date on the recurring schedule <a href="#getScheduleForYear">getScheduleForYear(year)</a>.
+
+Once validated, the date should be immediately converted to storage format via <a href="#getDoy">getDoy(date)</a> which will convert to day of year and adjust for leap year.  The rest of the logic remains as-is for storage.
+
+Upon retrieval of recurring, the day of year value should be converted back to a useable date for the client via <a href="#getDateFromDoy">getDateFromDoy(doy, year)</a>.  The client will always use a valid ISO date both for storage and for retrieval.  The day of year implementation will be hidden from a client perspective.
+
+The recurring scheduler will use <a href="#getDoy">getDoy(date)</a> to retrieve the day of year for the server time in UTC and then call <a href="#getScheduleFromDoy">getScheduleFromDoy(doy, year)</a> to get the schedule of recurring days that should be retrieved from the database for recurring charges.
+
+Finally, the sync functionality will need to use the same logic to convert day of year to the schedule to be stored by apiv2 and used by FRS, Engagement, and clients in their own workflows <a href="#getScheduleFromDoy">getScheduleFromDoy(doy, year)</a>.
 ## Functions
 
 <dl>
