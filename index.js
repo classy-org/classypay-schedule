@@ -1,4 +1,5 @@
 const moment = require('moment');
+let years = [];
 
 let msort = (a, b) => {
     let aval = moment(a.month, 'MMMM').format('M');
@@ -60,9 +61,25 @@ let year = (year) => {
     return days;
 }
 
+let validate = (date) => {
+    let target = moment(date).utc(false);
+    if (!years[target.year()]) {
+        years[target.year()] = year(target.year()).reduce(function(map, obj) {
+            map[obj.doy] = obj;
+            return map;
+        }, {});
+    }
+    let targetYear = years[target.year()];
+    let targetDoy = doy(target);
+    if (!targetYear[targetDoy]) {
+        throw new Error(`${date} is not a valid recurring date`);
+    }
+}
+
 module.exports = {
     doy,
-    dayFromDoy,
+    dateFromDoy,
     schedule,
-    year
+    year,
+    validate
 };
