@@ -1,7 +1,45 @@
 # classypay-schedule
 Classypay tools to translate, generate, and validate recurring dates and frequencies.
 
+##Quickstart
+```
+git clone https://github.com/classy-org/classypay-schedule.git
+cd classypay-schedule
+yarn install
+node ./bin/schedule.js
+```
+###Examples
+Export a csv copy of a years schedule:
+```
+node ./bin/schedule.js export 2018
+```
+Validate an ISO date is valid and is on the schedule:
+```
+node ./bin/schedule.js validate 2018-10-12T00:00:00.00Z
+```
+Return the day of year for an ISO date:
+```
+node ./bin/schedule.js doy 2018-10-12T00:00:00.00Z
+```
+Return a date given a day of year:
+```
+node ./bin/schedule.js doy 65 2018
+```
+Return a schedule for a given day of year:
+```
+node ./bin/schedule.js sfd 65 2018
+```
+Return a schedule for a given date:
+```
+node ./bin/schedule.js sfr 2018-10-12T00:00:00.00Z
+```
+Return a schedule for a given year:
+```
+node ./bin/schedule.js sfy 2020
+```
 ## Rules
+### Timezone
+All dates are calculated in UTC.
 ### Valid Days
 A day is valid if and only if it falls between days 1-28 of the month or is the last day of the month.
 ### Storage
