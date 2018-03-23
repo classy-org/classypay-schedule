@@ -23,7 +23,7 @@ node ./bin/schedule.js doy 2018-10-12T00:00:00.00Z
 ```
 Return a date given a day of year:
 ```
-node ./bin/schedule.js doy 65 2018
+node ./bin/schedule.js dfd 65 2018
 ```
 Return a schedule for a given day of year:
 ```
