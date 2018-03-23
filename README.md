@@ -1,14 +1,14 @@
 # classypay-schedule
 Classypay tools to translate, generate, and validate recurring dates and frequencies.
 
-##Quickstart
+## Quickstart
 ```
 git clone https://github.com/classy-org/classypay-schedule.git
 cd classypay-schedule
 yarn install
 node ./bin/schedule.js
 ```
-###Examples
+### Examples
 Export a csv copy of a years schedule:
 ```
 node ./bin/schedule.js export 2018
