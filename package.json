@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jsdoc-to-markdown": "^4.0.1",
     "json2csv": "^4.0.2",
     "moment": "^2.21.0"
   }
