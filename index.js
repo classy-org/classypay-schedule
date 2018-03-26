@@ -62,7 +62,7 @@ let getScheduleFromDoy = (doy, year = moment.utc().format('YYYY')) => {
  * @param {string} recurringDate An ISO formatted date string.
  */
 let getScheduleFromRecurringDate = (recurringDate) => {
-    let date = moment.utc(recurringDate);
+    let date = moment.utc(recurringDate, moment.ISO_8601, true);
     return getScheduleFromDoy(getDoy(date), date.year());
 }
 
@@ -89,6 +89,17 @@ let getSchedule = (date, count = 1, interval) => {
     return results;
 }
 
+let getDay = (date, year) => {
+    return {
+        date: date.format(),
+        doy: getDoy(date),
+        dateFromDoy: getDateFromDoy(getDoy(date), year),
+        monthly: getSchedule(date.clone(), 12, 1).sort(msort),
+        quarterly: getSchedule(date.clone(), 4, 3).sort(msort),
+        annual: getSchedule(date.clone()).sort(msort)
+    }
+}
+
 /**
  * Generate the entire recurring schedule for a year.
  * 
@@ -105,14 +116,7 @@ let getScheduleForYear = (year = moment.utc().format('YYYY')) => {
         let eom = current.date() === current.clone().endOf('month').date();
         // we will only schedule for days 1-28 or end of month, we will also skip day 60 of a leap year
         if ((current.date() <= 28 || eom) && (!current.isLeapYear() || current.dayOfYear() !== 60)) {
-            days.push({
-                date: current.format(),
-                doy: getDoy(current),
-                dateFromDoy: getDateFromDoy(getDoy(current), year),
-                monthly: getSchedule(current.clone(), 12, 1).sort(msort),
-                quarterly: getSchedule(current.clone(), 4, 3).sort(msort),
-                annual: getSchedule(current.clone()).sort(msort)
-            });
+            days.push(getDay(current, year));
         }
         // keep adding a day unless we hit EOY
         if (getDoy(current) < 365) {
@@ -128,7 +132,7 @@ let getScheduleForYear = (year = moment.utc().format('YYYY')) => {
  * @param {string} recurringDate An ISO formatted date string.
  */
 let validateRecurringDate = (recurringDate) => {
-    let date = moment.utc(recurringDate);
+    let date = moment.utc(recurringDate, moment.ISO_8601, true);
     if (date.isValid()) {
         let year = lookupYear(date.format('YYYY'));
         let doy = getDoy(date);
