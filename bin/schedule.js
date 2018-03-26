@@ -11,11 +11,11 @@ if (process.argv[2] === 'export') {
 } else if (process.argv[2] === 'validate') {
     schedule.validateRecurringDate(process.argv[3]);
 } else if (process.argv[2] === 'doy') {
-    console.log(schedule.getDoy(moment(process.argv[3])));
+    console.log(schedule.getDoy(moment.utc(process.argv[3])));
 } else if (process.argv[2] === 'dfd') {
     console.log(schedule.getDateFromDoy(Number(process.argv[3]), process.argv[4]));
 } else if (process.argv[2] === 'sfd') {
-    console.log(schedule.getScheduleFromDoy(Number(process.argv[3], process.argv[4])));
+    console.log(schedule.getScheduleFromDoy(Number(process.argv[3]), process.argv[4]));
 } else if (process.argv[2] === 'sfr') {
     console.log(schedule.getScheduleFromRecurringDate(process.argv[3]));
 } else if (process.argv[2] === 'sfy') {

@@ -6,11 +6,9 @@ let years = [];
  * 
  * @param {Moment} date A moment in time.
  */
-let lookupYear = (date = moment()) => {
-    date.utc(false);
-    let year = date.format('YYYY');
+let lookupYear = (year = moment.utc().format('YYYY')) => {
     if (!years[year]) {
-        years[year] = getScheduleForYear(year).reduce(function(map, obj) {
+        years[year] = getScheduleForYear(year).reduce(function (map, obj) {
             map[obj.doy] = obj;
             return map;
         }, {});
@@ -20,10 +18,10 @@ let lookupYear = (date = moment()) => {
 
 /** 
  * Sort by logical calendar month.
-*/
+ */
 let msort = (a, b) => {
-    let aval = moment(a.month, 'MMMM').format('M');
-    let bval = moment(b.month, 'MMMM').format('M');
+    let aval = moment.utc(a.month, 'MMMM').format('M');
+    let bval = moment.utc(b.month, 'MMMM').format('M');
     return aval - bval;
 };
 
@@ -33,7 +31,6 @@ let msort = (a, b) => {
  * @param {Moment} date 
  */
 let getDoy = (date) => {
-    date.utc(false);
     return date.isLeapYear() && date.dayOfYear() > 59 ? date.dayOfYear() - 1 : date.dayOfYear();
 }
 
@@ -43,8 +40,8 @@ let getDoy = (date) => {
  * @param {number} doy 
  * @param {number} year 
  */
-let getDateFromDoy = (doy, year = moment().utc(false).format('YYYY')) => {
-    let date = moment(year, 'YYYY').utc(false).startOf('year');
+let getDateFromDoy = (doy, year = moment.utc().format('YYYY')) => {;
+    let date = moment.utc(year, 'YYYY').startOf('year');
     return (date.isLeapYear() && doy > 59) ? date.dayOfYear(doy + 1).format() : date.dayOfYear(doy).format();
 }
 
@@ -54,8 +51,8 @@ let getDateFromDoy = (doy, year = moment().utc(false).format('YYYY')) => {
  * @param {number} doy The day of the year 1-365.
  * @param {number} year 
  */
-let getScheduleFromDoy = (doy, year = moment().utc(false).format('YYYY')) => {
-    let scheduleForYear = lookupYear(moment(year, 'YYYY').utc(false));
+let getScheduleFromDoy = (doy, year = moment.utc().format('YYYY')) => {
+    let scheduleForYear = lookupYear(year);
     return scheduleForYear[doy];
 }
 
@@ -65,7 +62,7 @@ let getScheduleFromDoy = (doy, year = moment().utc(false).format('YYYY')) => {
  * @param {string} recurringDate An ISO formatted date string.
  */
 let getScheduleFromRecurringDate = (recurringDate) => {
-    let date = moment(recurringDate).utc(false);
+    let date = moment.utc(recurringDate);
     return getScheduleFromDoy(getDoy(date), date.year());
 }
 
@@ -77,7 +74,6 @@ let getScheduleFromRecurringDate = (recurringDate) => {
  * @param {number} interval The number of months to add for each interval.
  */
 let getSchedule = (date, count = 1, interval) => {
-    date.utc(false);
     let results = [];
     let eom = date.date() === date.clone().endOf('month').date();
     for (let i = 1; i <= count; i++) {
@@ -98,14 +94,13 @@ let getSchedule = (date, count = 1, interval) => {
  * 
  * @param {number} year The year.
  */
-let getScheduleForYear = (year = moment().format('YYYY')) => {
+let getScheduleForYear = (year = moment.utc().format('YYYY')) => {
     let days = []
     // always use UTC, set to requested year, and reset to start of year
-    let current = moment().utc(false).year(year).startOf('year');
+    let current = moment.utc().year(year).startOf('year');
     // 365 normally but 366 if leap year
     for (let day = 1; day <= (current.isLeapYear() ? 366 : 365); day++) {
-        // offset by 1 if leap year and day of year is after 59 (Feb 28)
-        current.dayOfYear(current.isLeapYear() && current.dayOfYear > 59 ? day + 1 : day);
+        current.dayOfYear(day);
         // check if date is end of a month
         let eom = current.date() === current.clone().endOf('month').date();
         // we will only schedule for days 1-28 or end of month, we will also skip day 60 of a leap year
@@ -113,10 +108,10 @@ let getScheduleForYear = (year = moment().format('YYYY')) => {
             days.push({
                 date: current.format(),
                 doy: getDoy(current),
-                dateFromDoy: getDateFromDoy(getDoy(current), current.year()),
+                dateFromDoy: getDateFromDoy(getDoy(current), year),
                 monthly: getSchedule(current.clone(), 12, 1).sort(msort),
                 quarterly: getSchedule(current.clone(), 4, 3).sort(msort),
-                annual:  getSchedule(current.clone()).sort(msort)
+                annual: getSchedule(current.clone()).sort(msort)
             });
         }
         // keep adding a day unless we hit EOY
@@ -133,9 +128,9 @@ let getScheduleForYear = (year = moment().format('YYYY')) => {
  * @param {string} recurringDate An ISO formatted date string.
  */
 let validateRecurringDate = (recurringDate) => {
-    let date = moment(recurringDate).utc(false);
+    let date = moment.utc(recurringDate);
     if (date.isValid()) {
-        let year = lookupYear(date);
+        let year = lookupYear(date.format('YYYY'));
         let doy = getDoy(date);
         if (!year[doy]) {
             throw new Error(`${date} is not a valid recurring date`);
