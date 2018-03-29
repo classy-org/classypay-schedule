@@ -9,7 +9,7 @@ let years = [];
 let lookupYear = (year = moment.utc().format('YYYY')) => {
     if (!years[year]) {
         years[year] = getScheduleForYear(year).reduce(function (map, obj) {
-            map[obj.doy] = obj;
+            map[obj.recurringStartDate] = obj;
             return map;
         }, {});
     }
@@ -35,35 +35,14 @@ let getDoy = (date) => {
 }
 
 /**
- * Given a day of the year, return a date.  Year is optional, defaults to current year.
+ * Given a recurring start date, return a schedule for recurring.
  * 
- * @param {number} doy 
- * @param {number} year 
+ * @param {string} recurringStartDate An ISO formatted date string.
  */
-let getDateFromDoy = (doy, year = moment.utc().format('YYYY')) => {;
-    let date = moment.utc(year, 'YYYY').startOf('year');
-    return (date.isLeapYear() && doy > 59) ? date.dayOfYear(doy + 1).format() : date.dayOfYear(doy).format();
-}
-
-/**
- * Given a day of year, return the schedule for recurring.
- * 
- * @param {number} doy The day of the year 1-365.
- * @param {number} year 
- */
-let getScheduleFromDoy = (doy, year = moment.utc().format('YYYY')) => {
-    let scheduleForYear = lookupYear(year);
-    return scheduleForYear[doy];
-}
-
-/**
- * Given a recurring date, return a schedule for recurring.
- * 
- * @param {string} recurringDate An ISO formatted date string.
- */
-let getScheduleFromRecurringDate = (recurringDate) => {
-    let date = moment.utc(recurringDate, moment.ISO_8601, true);
-    return getScheduleFromDoy(getDoy(date), date.year());
+let getScheduleForRecurringStartDate = (recurringStartDate) => {
+    let date = moment.utc(recurringStartDate, moment.ISO_8601, true);
+    let scheduleForYear = lookupYear(date.format('YYYY'));
+    return scheduleForYear[date.format('YYYY-MM-DD')];
 }
 
 /**
@@ -91,12 +70,10 @@ let getSchedule = (date, count = 1, interval) => {
 
 let getDay = (date, year) => {
     return {
-        date: date.format(),
-        doy: getDoy(date),
-        dateFromDoy: getDateFromDoy(getDoy(date), year),
-        monthly: getSchedule(date.clone(), 12, 1).sort(msort),
-        quarterly: getSchedule(date.clone(), 4, 3).sort(msort),
-        annual: getSchedule(date.clone()).sort(msort)
+        recurringStartDate: date.format('YYYY-MM-DD'),
+        MONTHLY: getSchedule(date.clone(), 12, 1).sort(msort),
+        QUARTERLY: getSchedule(date.clone(), 4, 3).sort(msort),
+        YEARLY: getSchedule(date.clone()).sort(msort)
     }
 }
 
@@ -129,26 +106,22 @@ let getScheduleForYear = (year = moment.utc().format('YYYY')) => {
 /**
  * Given an ISO formatted date string, determine if the given date is valid for the yearly schedule.
  * 
- * @param {string} recurringDate An ISO formatted date string.
+ * @param {string} recurringStartDate An ISO formatted date string.
  */
-let validateRecurringDate = (recurringDate) => {
-    let date = moment.utc(recurringDate, moment.ISO_8601, true);
+let validateRecurringStartDate = (recurringStartDate) => {
+    let date = moment.utc(recurringStartDate, 'YYYY-MM-DD', true);
     if (date.isValid()) {
         let year = lookupYear(date.format('YYYY'));
-        let doy = getDoy(date);
-        if (!year[doy]) {
-            throw new Error(`${date} is not a valid recurring date`);
+        if (!year[date.format('YYYY-MM-DD')]) {
+            throw new Error(`${date} is not a valid recurring start date`);
         }
     } else {
-        throw new Error(`${recurringDate} is not a valid date`);
+        throw new Error(`${recurringStartDate} is not a valid date`);
     }
 }
 
 module.exports = {
-    getDoy,
-    getDateFromDoy,
-    getScheduleFromDoy,
-    getScheduleFromRecurringDate,
+    getScheduleForRecurringStartDate,
     getScheduleForYear,
-    validateRecurringDate
+    validateRecurringStartDate
 };
