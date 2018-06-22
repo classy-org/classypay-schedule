@@ -14,14 +14,14 @@ Get the schedule for a given recurring start date:
 node ./bin/schedule.js schedule 2018-06-21
 ```
 ## Rules
-### Timezone
-All dates are calculated in UTC.
-### Storage
-The frequency is stored as one of: MONTHLY, QUARTERLY, YEARLY.  The recurring start date is stored as an ISO date without time: YYYY-MM-DD.
 ### Leap Year
 February 29th will be converted to February 28th during leap years.
 ## Use Case
+This tool will be used to generate a schedule for a given ISO date: YYYY-MM-DD.  The schedule will include MONTHLY, QUARTERLY, and YEARLY dates that correspond to start dates (stored in Pay) which share the scheduled charge date supplied in the request.
 ### Classy
+When a client creates, adds or updates a recurring plan on Classy Pay, Classy Pay will return the schedule as part of the response.  In addition, Pay will attempt to sync the schedule with any valid recurring sync operations to APIv2.
+### Classy Pay
+Within Classy Pay itself, the schedule will be used to find all recurring plans which should be charged for the day.
 ## Functions
 <dl>
 <dt><a href="#msort">msort(a, b)</a> ⇒ <code>Number</code></dt>
